@@ -1,9 +1,25 @@
+
+body{
+ background: linear-gradient(-20deg, #2b5876 0%, #4e4376 100%);}
+
+h1{
+color:whitesmoke;
+font-size: 40px;
+text-align: center;
+width: 100%;
+margin:70px auto;
+
+}
 /* game board table */
+#board {
+margin: 0 auto;
+}
 
 #board td {
   width: 50px;
   height: 50px;
   border: solid 1px #666;
+  
  
 }
 
@@ -31,11 +47,11 @@
 /* TODO: make pieces red/blue,  depending on player 1/2 piece */
 
  .piece.p1{
-  background-color:red;
+  background-color:lightcoral
 }
 
 .piece.p2{
-  background-color:blue;
+  background-color:lightskyblue
 }
 
 /* column-top is table row of clickable areas for each column */
