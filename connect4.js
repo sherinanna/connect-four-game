@@ -16,11 +16,11 @@ let board = []; // array of rows, each row is array of cells  (board[y][x])
  */
 
 function makeBoard() {
-  // TODO: set "board" to empty HEIGHT x WIDTH matrix array
+  //  set "board" to empty HEIGHT x WIDTH matrix array
  for(let i=0;i<HEIGHT;i++){
-    board.push(Array(WIDTH));
+    // board.push(Array(WIDTH));
+    board.push(Array.from({ length: WIDTH }));
   }
-
 }
 
 /** makeHtmlBoard: make HTML table and row of column tops. */
@@ -112,29 +112,21 @@ function handleClick(evt) {
   if (checkForWin()) {
     return endGame(`Player ${currPlayer} won!`);
   }
-//*************/
+
   
   //  check if all cells in board are filled; if so call, call endGame
-
-  // const check = board.every(row => row.every(cell => cell))
-  // console.log(check);
-
-  // What is wrong with the below code
-  // const check=board.every(arr=> {
-  //   return arr.every(cell=>{
-  //      return (cell===1|| cell===2)})
-  //     });
+  const check=board.every(arr=> arr.every(cell=>(cell===1|| cell===2)))
  
 
-//  Alternate method by creating a function
- function checkBoard(){
-  for (let y = 0; y < HEIGHT; y++) {
-    for (let x = 0; x < WIDTH; x++) {
-   if(board[y][x]=== undefined) return false;
-}}
-return true;
-}
-let check = checkBoard(); 
+// //  Alternate method by creating a function
+//  function checkBoard(){
+//   for (let y = 0; y < HEIGHT; y++) {
+//     for (let x = 0; x < WIDTH; x++) {
+//    if(board[y][x]=== undefined) return false;
+// }}
+// return true;
+// }
+// let check = checkBoard(); 
 
 
 if(check) endGame("Game over: Tie!!");
