@@ -51,6 +51,14 @@ margin: 0 auto;
   background-color:lightskyblue
 }
 
+.current-cell-p1{
+background-color: grey;
+}
+.current-cell-p2{
+background-color: grey;
+
+}
+
 /* column-top is table row of clickable areas for each column */
 
 #column-top td {

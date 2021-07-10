@@ -79,8 +79,8 @@ function placeInTable(y, x) {
   currPiece.classList.add("p"+currPlayer);
 
   const currCell=document.getElementById(`${y}-${x}`);
- currCell.append(currPiece);
-//  console.log(currCell);
+ currCell.classList.add("current-cell-p"+currPlayer);
+currCell.append(currPiece);
 }
 
 /** endGame: announce game end */
