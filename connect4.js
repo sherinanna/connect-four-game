@@ -5,170 +5,201 @@
  * board fills (tie)
  */
 
-const WIDTH = 7;
-const HEIGHT = 6;
-
-let currPlayer = 1; // active player: 1 or 2
-let board = []; // array of rows, each row is array of cells  (board[y][x])
-
-/** makeBoard: create in-JS board structure:
- *    board = array of rows, each row is array of cells  (board[y][x])
- */
-
-function makeBoard() {
-  //  set "board" to empty HEIGHT x WIDTH matrix array
- for(let i=0;i<HEIGHT;i++){
-    // board.push(Array(WIDTH));
-    board.push(Array.from({ length: WIDTH }));
+class Game {
+  constructor(height, width, player1, player2) {
+    this.height = height;
+    this.width = width;
+    this.player1 = player1;
+    this.player2 = player2;
+    this.currPlayer = player1.color;
+    this.board = [];
+    this.gameOver = false;
+    this.makeBoard();
+    this.makeHtmlBoard();
   }
-}
 
-/** makeHtmlBoard: make HTML table and row of column tops. */
-
-function makeHtmlBoard() {
-  // TODO: get "htmlBoard" variable from the item in HTML w/ID of "board"
-const htmlBoard=document.querySelector('#board');
-
-  // TODO: Create table row that corresponds to top of a column. When a player 
-  // clicks on this row, a ball is dropped into the corresponding column
-  const top = document.createElement("tr");
-  top.setAttribute("id", "column-top");
-  top.addEventListener("click", handleClick);
-
-  // Add the cells (specified by width)for the top row and append the row to the board
-  for (let x = 0; x < WIDTH; x++) {
-    const headCell = document.createElement("td");
-    headCell.setAttribute("id", x);
-    top.append(headCell);
-  }
-  htmlBoard.append(top);
-
-  // Create the play grid . Create 'height' # of rows and 'width' # of cells to each row
-  // Append each row to the board
-  for (let y = 0; y < HEIGHT; y++) {
-    const row = document.createElement("tr");
-    for (let x = 0; x < WIDTH; x++) {
-      const cell = document.createElement("td");
-      cell.setAttribute("id", `${y}-${x}`);
-  
-      row.append(cell);
+  /** makeBoard: create in-JS board structure:
+   *   board = array of rows, each row is array of cells  (board[y][x])
+   */
+  makeBoard() {
+    // console.log(1, this);
+    for (let y = 0; y < this.height; y++) {
+      this.board.push(Array.from({ length: this.width }));
     }
-    htmlBoard.append(row);
-  }
-}
-
-/** findSpotForCol: given column x, return top empty y (null if filled) */
-
-function findSpotForCol(x) {
-  // TODO: write the real version of this, rather than always returning 0
-  for (let y = HEIGHT-1; y >= 0; y--) {
-if(board[y][x]===undefined) {
-board[y][x]=currPlayer;
-  return y;
-}
-}
-return null;
-}
-
-/** placeInTable: update DOM to place piece into HTML table of board */
-
-function placeInTable(y, x) {
-  // TODO: make a div and insert into correct table cell
-  const currPiece=document.createElement('div');
-  currPiece.classList.add("piece");
-  currPiece.classList.add("p"+currPlayer);
-
-  const currCell=document.getElementById(`${y}-${x}`);
- currCell.classList.add("current-cell-p"+currPlayer);
-currCell.append(currPiece);
-}
-
-/** endGame: announce game end */
-
-function endGame(msg) {
-  // TODO: pop up alert message
-  alert(msg);
-}
-
-/** handleClick: handle click of column top to play piece */
-
-function handleClick(evt) {
-  // get x from ID of clicked cell
-  
-  const x = +evt.target.id;
-
-  // get next spot in column (if none, ignore click)
-  const y = findSpotForCol(x);
-  // console.log(y);
-  if (y === null) {
-    return;
   }
 
-  // place piece in board and add to HTML table
-  // TODO: add line to update in-memory board
-  placeInTable(y, x);
+  /** makeHtmlBoard: make HTML table and row of column tops. */
 
-  // check for win
-  if (checkForWin()) {
-    return endGame(`Player ${currPlayer} won!`);
+  makeHtmlBoard() {
+    const board = document.getElementById("board");
+    // console.log(2, this);
+    // make column tops (clickable area for adding a piece to that column)
+    const top = document.createElement("tr");
+    top.setAttribute("id", "column-top");
+    top.addEventListener("click", this.handleClick.bind(this));
+
+    for (let x = 0; x < this.width; x++) {
+      const headCell = document.createElement("td");
+      headCell.setAttribute("id", x);
+      top.append(headCell);
+    }
+
+    board.append(top);
+
+    // make main part of board
+    for (let y = 0; y < this.height; y++) {
+      const row = document.createElement("tr");
+
+      for (let x = 0; x < this.width; x++) {
+        const cell = document.createElement("td");
+        cell.setAttribute("id", `${y}-${x}`);
+        row.append(cell);
+      }
+
+      board.append(row);
+    }
   }
 
-  
-  //  check if all cells in board are filled; if so call, call endGame
-  const check=board.every(arr=> arr.every(cell=>(cell===1|| cell===2)))
- 
+  /** findSpotForCol: given column x, return top empty y (null if filled) */
 
-// //  Alternate method by creating a function
-//  function checkBoard(){
-//   for (let y = 0; y < HEIGHT; y++) {
-//     for (let x = 0; x < WIDTH; x++) {
-//    if(board[y][x]=== undefined) return false;
-// }}
-// return true;
-// }
-// let check = checkBoard(); 
-
-
-if(check) endGame("Game over: Tie!!");
-
-// switch players :switch currPlayer 1 <-> 2
-  currPlayer=currPlayer===1?2:1;
-}
-
-/** checkForWin: check board cell-by-cell for "does a win start here?" */
-
-function checkForWin() {
-  function _win(cells) {
-    // Check four cells to see if they're all color of current player
-    //  - cells: list of four (y, x) cells
-    //  - returns true if all are legal coordinates & all match currPlayer
-
-    return cells.every(
-      ([y, x]) =>
-        y >= 0 &&
-        y < HEIGHT &&
-        x >= 0 &&
-        x < WIDTH &&
-        board[y][x] === currPlayer
-    );
+  findSpotForCol(x) {
+    for (let y = this.height - 1; y >= 0; y--) {
+      if (!this.board[y][x]) {
+        return y;
+      }
+    }
+    return null;
   }
 
-  
-  // Generate  list of all possible combination of 4 cell positions(horizontal, vertical and diagonal) that would 
-// lead to a win. If a player wins, the function returns true
-  for (let y = 0; y < HEIGHT; y++) {
-    for (let x = 0; x < WIDTH; x++) {
-      let horiz = [[y, x], [y, x + 1], [y, x + 2], [y, x + 3]];
-      let vert = [[y, x], [y + 1, x], [y + 2, x], [y + 3, x]];
-      let diagDR = [[y, x], [y + 1, x + 1], [y + 2, x + 2], [y + 3, x + 3]];
-      let diagDL = [[y, x], [y + 1, x - 1], [y + 2, x - 2], [y + 3, x - 3]];
+  /** placeInTable: update DOM to place piece into HTML table of board */
 
-      if (_win(horiz) || _win(vert) || _win(diagDR) || _win(diagDL)) {
-        return true;
+  placeInTable(y, x) {
+    const piece = document.createElement("div");
+    piece.classList.add("piece");
+    // piece.classList.add(`p${this.currPlayer}`);
+    piece.style.top = -50 * (y + 2);
+    piece.style.backgroundColor = this.currPlayer;
+
+    const spot = document.getElementById(`${y}-${x}`);
+    spot.append(piece);
+  }
+
+  /** endGame: announce game end */
+  endGame(msg) {
+    this.gameOver = true;
+    alert(msg);
+  }
+
+  /** handleClick: handle click of column top to play piece */
+
+  handleClick(evt) {
+    if (!this.gameOver) {
+      // console.log(3, this);
+
+      // get x from ID of clicked cell
+      const x = +evt.target.id;
+
+      // get next spot in column (if none, ignore click)
+
+      const y = this.findSpotForCol(x);
+      if (y === null) {
+        return;
+      }
+
+      // place piece in board and add to HTML table
+      this.board[y][x] = this.currPlayer;
+      this.placeInTable(y, x);
+
+      // check for win
+      if (this.checkForWin()) {
+        return this.endGame(`The ${this.currPlayer} player  won!`);
+      }
+
+      // check for tie
+      if (this.board.every((row) => row.every((cell) => cell))) {
+        return this.endGame("Tie!");
+      }
+
+      // switch players
+      this.currPlayer =
+        this.currPlayer === this.player1.color
+          ? this.player2.color
+          : this.player1.color;
+    }
+  }
+
+  /** checkForWin: check board cell-by-cell for "does a win start here?" */
+
+  checkForWin() {
+    const _win = (cells) => {
+      // console.log(4, this); this here is undefined if we dont write _win as arrow function
+
+      // Check four cells to see if they're all color of current player
+      //  - cells: list of four (y, x) cells
+      //  - returns true if all are legal coordinates & all match currPlayer
+
+      return cells.every(
+        ([y, x]) =>
+          y >= 0 &&
+          y < this.height &&
+          x >= 0 &&
+          x < this.width &&
+          this.board[y][x] === this.currPlayer
+      );
+    };
+
+    for (let y = 0; y < this.height; y++) {
+      for (let x = 0; x < this.width; x++) {
+        // get "check list" of 4 cells (starting here) for each of the different
+        // ways to win
+        const horiz = [
+          [y, x],
+          [y, x + 1],
+          [y, x + 2],
+          [y, x + 3],
+        ];
+        const vert = [
+          [y, x],
+          [y + 1, x],
+          [y + 2, x],
+          [y + 3, x],
+        ];
+        const diagDR = [
+          [y, x],
+          [y + 1, x + 1],
+          [y + 2, x + 2],
+          [y + 3, x + 3],
+        ];
+        const diagDL = [
+          [y, x],
+          [y + 1, x - 1],
+          [y + 2, x - 2],
+          [y + 3, x - 3],
+        ];
+
+        // find winner (only checking each win-possibility as needed)
+        if (_win(horiz) || _win(vert) || _win(diagDR) || _win(diagDL)) {
+          return true;
+        }
       }
     }
   }
 }
 
-makeBoard();
-makeHtmlBoard();
+// Create a Player class. It should have a constructor that takes a string color name (eg, “orange” or “#ff3366”) and store that on the player instance.
+class Player {
+  constructor(color) {
+    this.color = color;
+  }
+}
+
+const startBtn = document.querySelector("#start");
+
+//  create the two player instances and pass it to the game class
+
+startBtn.addEventListener("click", () => {
+  let p1 = new Player(document.querySelector("#player1").value);
+
+  let p2 = new Player(document.querySelector("#player2").value);
+  new Game(6, 7, p1, p2);
+});
